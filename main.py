@@ -28,7 +28,7 @@ class Button():
         pygame.draw.rect(screen, self.top_color, self.top_rect, border_radius = 12)
         screen.blit(self.text_surface, self.text_rect)
 
-screens = ["menu", "game", "minigames", "snake", "ending"]
+screens = ["menu", "game", "minigames", "snake1", "snake2", "ending"]
 
 #converter a criação de botões p classes (fazer animado)
 #configurar git bash p fazer o push inicial
@@ -42,18 +42,32 @@ pygame.display.set_caption('CalouCIn')
 screen = pygame.display.set_mode((width, height))
 
 whoosh = mixer.Sound(r"src\audio\whoosh.ogg")
-whoosh.set_volume(0.15)
+whoosh.set_volume(0.2)
 
 font_normal = pygame.font.SysFont(None, 30)
 font_big = pygame.font.SysFont(None, 50)
 
 logo_cin = pygame.image.load(r"src\img\cin-logo.png") #128x108
 
+# Colors
 BLACK = (0, 0, 0)
 WHITE = "#f2ebeb"
 RED = (200, 0, 0)
 DARK_RED = (158, 0, 16)
 GRAY = (128, 128, 128)
+
+def verify_click(button, mouse_pos, click, current_screen, new_screen):
+    if button.top_rect.collidepoint(mouse_pos):
+        button.top_color = DARK_RED
+
+        if click:
+            whoosh.play()
+            
+            current_screen = new_screen
+
+    return current_screen
+
+    
 
 def write(text, font, color, surface, pos):
     text_obj = font.render(text, 1, color)
@@ -90,22 +104,27 @@ def menu():
     return play_button, minigames_button
 
 def game():
-    snake_game()
-
-    """screen.fill(WHITE)
-    write("telinha totosa do game", font_big, RED, screen, (width/2, 90))"""
+    screen.fill(WHITE)
+    write("telinha totosa do game", font_big, RED, screen, (width/2, 90))
 
 def minigames():
     screen.fill(WHITE)
-    write("telinha totosa dos minigames", font_big, RED, screen, (width/2, 90))
+
+    pos_snake1_button = (250, 220)
+    snake1_button = Button("Snake 1", 300, 70, pos_snake1_button)
+    snake1_button.draw()
+
+    pos_snake2_button = (250, 320)
+    snake2_button = Button("Snake 2", 300, 70, pos_snake2_button)
+    snake2_button.draw()
+
+    return snake1_button, snake2_button
 
 def main():
     current_screen = screens[0]
     click = False
 
-    running = True
-
-    while running:
+    while True:
 
         mouse_pos = pygame.mouse.get_pos()
 
@@ -117,21 +136,8 @@ def main():
             playbutton.top_color = RED
             minigamesbutton.top_color = RED
             
-            if playbutton.top_rect.collidepoint(mouse_pos):
-                playbutton.top_color = DARK_RED
-
-                if click:
-                    whoosh.play()
-                    
-                    current_screen = screens[1] #game
-            
-            elif minigamesbutton.top_rect.collidepoint(mouse_pos):
-                minigamesbutton.top_color = DARK_RED
-                
-                if click:
-                    whoosh.play()
-
-                    current_screen = screens[2] #minigames
+            current_screen = verify_click(playbutton, mouse_pos, click, current_screen, screens[1]) #game
+            current_screen = verify_click(minigamesbutton, mouse_pos, click, current_screen, screens[2]) #minigames
 
             playbutton.draw()
             minigamesbutton.draw()
@@ -140,13 +146,31 @@ def main():
             game()
 
         elif current_screen == "minigames":
-            minigames()
+            snake1_button, snake2_button = minigames()
 
+            current_screen = verify_click(snake1_button, mouse_pos, click, current_screen, screens[3]) #snake
+            current_screen = verify_click(snake2_button, mouse_pos, click, current_screen, screens[4]) #snake
+
+            snake1_button.draw()
+            snake2_button.draw()
+
+        elif current_screen == "snake1":
+            points = snake_game(screen, 1)
+            print(f"Points: {points}")
+
+            current_screen = screens[2]
+
+        elif current_screen == "snake2":
+            points = snake_game(screen, 2)
+            print(f"Points: {points}")
+
+            current_screen = screens[2]
+
+        # Eventos
         click = False
         for event in pygame.event.get():
 
             if event == QUIT:
-                running = False
                 pygame.quit()
 
             if event.type == MOUSEBUTTONDOWN:
@@ -164,6 +188,8 @@ def main():
                         current_screen = "menu"
 
         pygame.display.update()
-        clock.tick(60)
+
+        if not screen == "snake": clock.tick(60)
+        else: clock.tick(11)
 
 main()

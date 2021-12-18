@@ -10,7 +10,7 @@ class Coin(pygame.sprite.Sprite):
 
         self.images = []
 
-        img = pygame.image.load('Scr/Img/coin_01.png')
+        img = pygame.image.load('Scr/Img/fofolete.png')
         img.convert_alpha()
         img.set_colorkey(AlPHA)
 

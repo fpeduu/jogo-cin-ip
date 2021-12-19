@@ -4,11 +4,38 @@ from pygame import mixer
 
 mixer.init()
 eating_sound = mixer.Sound(r"src\audio\eating.wav")
-eating_sound.set_volume(0.2)
+eating_sound.set_volume(1)
 
 bg = pygame.image.load(r"src\img\dark_forest.png")
+apple_img = pygame.image.load(r"src\img\apple.png")
+grape_img = pygame.image.load(r"src\img\grape.png")
+blueberry_img = pygame.image.load(r"src\img\blueberry.png")
 
 clock = pygame.time.Clock()
+
+class Fruit:
+
+    def __init__(self, color, points, sprite = None):
+        self.fruit = pygame.Rect(0, 0, 20, 20)
+        self.color = color
+        self.points = points
+        self.pos = (0, 0)
+        self.counter = 0
+
+        self.sprite = sprite
+
+    def change_pos(self, new_pos):
+        self.fruit.x = new_pos[0]
+        self.fruit.y = new_pos[1]
+
+    def draw(self, screen):
+        if not self.sprite: pygame.draw.rect(screen, self.color, self.fruit)
+        else:
+            screen.blit(self.sprite, [self.fruit.x, self.fruit.y])
+
+    def eat(self):
+        self.counter += 1
+        return self.points
 
 def snake_game(screen, game_version):
 
@@ -54,17 +81,17 @@ def snake_game(screen, game_version):
     alive = True
 
     #Comida da cobra
-    apple = pygame.Surface((20, 20))
-    apple.fill(red)
+    if game_version > 2:
+        apple = Fruit(red, 5, apple_img)
+        grape = Fruit(purple, 7, grape_img)
+        blueberry = Fruit(blue, 10, blueberry_img)
 
-    grape = pygame.Surface((20,20))
-    grape.fill(purple)
-
-    blueberry = pygame.Surface((20, 20))
-    blueberry.fill(blue)
+    else:
+        apple = Fruit(red, 5)
+        grape = Fruit(purple, 7)
+        blueberry = Fruit(blue, 10)
 
     fruit = 1
-
     fruit_pos = pos_grid()
 
     while True:
@@ -142,9 +169,12 @@ def snake_game(screen, game_version):
 
             player_pos.append([0, 0])
 
-            if last_fruit == 1: pts += 5
-            elif last_fruit == 2: pts += 7
-            else: pts += 10
+            if last_fruit == 1:
+                pts += apple.eat()
+            elif last_fruit == 2: 
+                pts += grape.eat()
+            else: 
+                pts += blueberry.eat()
 
         #Colisão Player-Player
         for c in range(len(player_pos) - 2, 0 , -1):
@@ -194,16 +224,33 @@ def snake_game(screen, game_version):
         
         #Gerando os elementos da tela
         if fruit == 1:
-            screen.blit(apple, fruit_pos) # Apple
+            apple.change_pos(fruit_pos) # Apple
+            apple.draw(screen)
 
         elif fruit == 2:
-            screen.blit(grape, fruit_pos) # Grape
+            grape.change_pos(fruit_pos) # Grape
+            grape.draw(screen)
 
         else:
-            screen.blit(blueberry, fruit_pos) # Blueberry 
+            blueberry.change_pos(fruit_pos) # Blueberry 
+            blueberry.draw(screen)
         
         for pos in player_pos: #Gerar a cobra
             screen.blit(player, pos)
+
+        if game_version > 2:
+            apples = font.render(f"x{apple.counter}", 1, white)
+            grapes = font.render(f"x{grape.counter}", 1, white)
+            blueberries = font.render(f"x{blueberry.counter}", 1, white)
+
+            screen.blit(apple_img.convert_alpha(), (0, 580))
+            screen.blit(apples, (15, 570))
+
+            screen.blit(grape_img.convert_alpha(), (65, 580))
+            screen.blit(grapes, (80, 570))
+
+            screen.blit(blueberry_img.convert_alpha(), (130, 580))
+            screen.blit(blueberries, (145, 570))
 
         text = font.render(f'POINTS: {pts}', 1, white)
         screen.blit(text, [0, 0])

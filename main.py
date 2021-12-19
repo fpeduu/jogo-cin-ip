@@ -28,7 +28,7 @@ class Button():
         pygame.draw.rect(screen, self.top_color, self.top_rect, border_radius = 12)
         screen.blit(self.text_surface, self.text_rect)
 
-screens = ["menu", "game", "minigames", "snake1", "snake2", "ending"]
+screens = ["menu", "game", "minigames", "snake1", "snake2", "snake3", "ending"]
 
 #converter a criação de botões p classes (fazer animado)
 #configurar git bash p fazer o push inicial
@@ -66,8 +66,6 @@ def verify_click(button, mouse_pos, click, current_screen, new_screen):
             current_screen = new_screen
 
     return current_screen
-
-    
 
 def write(text, font, color, surface, pos):
     text_obj = font.render(text, 1, color)
@@ -107,22 +105,34 @@ def game():
     screen.fill(WHITE)
     write("telinha totosa do game", font_big, RED, screen, (width/2, 90))
 
-def minigames():
+def minigames(high_score1, high_score2, high_score3):
     screen.fill(WHITE)
 
-    pos_snake1_button = (250, 220)
-    snake1_button = Button("Snake 1", 300, 70, pos_snake1_button)
+    write(f"High-score 1: {high_score1}", font_normal, RED, screen, (710, 12))
+    write(f"High-score 2: {high_score2}", font_normal, RED, screen, (710, 32))
+    write(f"High-score 3: {high_score3}", font_normal, RED, screen, (710, 52))
+
+    pos_snake1_button = (250, 170)
+    snake1_button = Button("Snake v1.0", 300, 70, pos_snake1_button)
     snake1_button.draw()
 
-    pos_snake2_button = (250, 320)
-    snake2_button = Button("Snake 2", 300, 70, pos_snake2_button)
+    pos_snake2_button = (250, 270)
+    snake2_button = Button("Snake v2.0", 300, 70, pos_snake2_button)
     snake2_button.draw()
 
-    return snake1_button, snake2_button
+    pos_snake3_button = (250,370)
+    snake3_button = Button("Snake v3.0", 300, 70, pos_snake3_button)
+    snake3_button.draw()
+
+    return snake1_button, snake2_button, snake3_button
 
 def main():
     current_screen = screens[0]
     click = False
+
+    high_score1 = 0
+    high_score2 = 0
+    high_score3 = 0
 
     while True:
 
@@ -146,23 +156,30 @@ def main():
             game()
 
         elif current_screen == "minigames":
-            snake1_button, snake2_button = minigames()
+            snake1_button, snake2_button, snake3_button = minigames(high_score1, high_score2, high_score3)
 
             current_screen = verify_click(snake1_button, mouse_pos, click, current_screen, screens[3]) #snake
             current_screen = verify_click(snake2_button, mouse_pos, click, current_screen, screens[4]) #snake
+            current_screen = verify_click(snake3_button, mouse_pos, click, current_screen, screens[5]) #snake
 
             snake1_button.draw()
             snake2_button.draw()
 
         elif current_screen == "snake1":
             points = snake_game(screen, 1)
-            print(f"Points: {points}")
+            if points > high_score1: high_score1 = points
 
             current_screen = screens[2]
 
         elif current_screen == "snake2":
             points = snake_game(screen, 2)
-            print(f"Points: {points}")
+            if points > high_score2: high_score2 = points
+
+            current_screen = screens[2]
+
+        elif current_screen == "snake3":
+            points = snake_game(screen, 3)
+            if points > high_score3: high_score3 = points
 
             current_screen = screens[2]
 
@@ -189,7 +206,6 @@ def main():
 
         pygame.display.update()
 
-        if not screen == "snake": clock.tick(60)
-        else: clock.tick(11)
+        clock.tick(60)
 
 main()

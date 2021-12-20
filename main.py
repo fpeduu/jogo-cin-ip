@@ -7,7 +7,6 @@ from pygame.locals import *
 
 sys.path.append("src/")
 from snake import *
-import main_game
 
 class Button():
     def __init__(self, text, width, height, pos):
@@ -39,7 +38,7 @@ clock = pygame.time.Clock()
 width, height = 800, 600
 
 pygame.init()
-pygame.display.set_caption('CalouCIn')
+pygame.display.set_caption('SnakeCin')
 screen = pygame.display.set_mode((width, height))
 
 #whoosh = mixer.Sound(r"src\audio\#whoosh.ogg")
@@ -85,26 +84,18 @@ def draw_button(color, pos):
 
 def menu():
     screen.fill(WHITE)
-    write("CInTítulo Totoso", font_big, GRAY, screen, (width/2, 100))
-    write("CInTítulo Totoso", font_big, RED, screen, (width/2 + 2, 98))
+    write("SnakeCin", font_big, GRAY, screen, (width/2, 100))
+    write("SnakeCin", font_big, RED, screen, (width/2 + 2, 98))
 
     #start x and y, end x and y
-    pos_play_button = (250, 220)
-    pos_minigames_button = (250, 320)
+    pos_minigames_button = (250, 280)
+    minigames_button = Button("Play", 300, 70, pos_minigames_button)
 
-    play_button = Button("Jogar", 300, 70, pos_play_button)
-    minigames_button = Button("Minigames", 300, 70, pos_minigames_button)
-
-    play_button.draw()
     minigames_button.draw()
 
     screen.blit(logo_cin, (652, 472)) 
 
-    return play_button, minigames_button
-
-def game():
-    main_game.jogo.setup()
-    main_game.jogo.rodando()
+    return minigames_button
 
 def minigames(high_score1, high_score2, high_score3):
     screen.fill(WHITE)
@@ -140,21 +131,15 @@ def main():
         mouse_pos = pygame.mouse.get_pos()
 
         if current_screen == "menu":
-            playbutton, minigamesbutton = menu()
-            playbutton_y = playbutton.top_rect.y
-            minigamesbutton_y = minigamesbutton.top_rect.y
-            
-            playbutton.top_color = RED
+            minigamesbutton = menu()
             minigamesbutton.top_color = RED
             
-            current_screen = verify_click(playbutton, mouse_pos, click, current_screen, screens[1]) #game
             current_screen = verify_click(minigamesbutton, mouse_pos, click, current_screen, screens[2]) #minigames
 
-            playbutton.draw()
             minigamesbutton.draw()
 
         elif current_screen == "game":
-            game()
+            pass
 
         elif current_screen == "minigames":
             snake1_button, snake2_button, snake3_button = minigames(high_score1, high_score2, high_score3)

@@ -6,6 +6,10 @@ mixer.init()
 eating_sound = mixer.Sound(r"src\audio\eating.wav")
 eating_sound.set_volume(1)
 
+background_music = mixer.music.load(r"src\audio\fofolete_theme.mp3")
+mixer.music.set_volume(0.05)
+mixer.music.play(-1)
+
 bg = pygame.image.load(r"src\img\dark_forest.png")
 apple_img = pygame.image.load(r"src\img\apple.png")
 grape_img = pygame.image.load(r"src\img\grape.png")
@@ -357,6 +361,14 @@ def snake_game(screen, game_version):
         screen.blit(text, [0, 0])
 
         pygame.display.update()
-        clock.tick(13)
+        
+        if game_version == 1:
+            clock.tick(10)
+        
+        elif game_version == 2:
+            clock.tick(15)
+
+        else:
+            clock.tick(20)
 
     return pts

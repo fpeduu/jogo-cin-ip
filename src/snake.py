@@ -13,6 +13,157 @@ blueberry_img = pygame.image.load(r"src\img\blueberry.png")
 
 clock = pygame.time.Clock()
 
+ #Cores
+white = (255, 255, 255)
+black = (0, 0, 0)
+red = (250, 0, 0)
+blue = (0, 0, 250)
+purple = (160, 0, 200)
+
+# DIREÇÕES
+UP = 0
+LEFT = 1
+DOWN = 2
+RIGHT = 3
+
+
+class Snake:
+    def __init__(self, size, head_pos, game_version):
+        self.size = size
+        self.head_pos = head_pos
+        self.body = []
+        self.game_version = game_version
+        self.sprites = {    'head up':          pygame.image.load(r'src\img\snake_sprites\head_up.png')         ,
+                            'head down':        pygame.image.load(r'src\img\snake_sprites\head_down.png')       ,
+                            'head left':        pygame.image.load(r'src\img\snake_sprites\head_left.png')       ,
+                            'head right':       pygame.image.load(r'src\img\snake_sprites\head_right.png')      ,
+                            'horizontal body':  pygame.image.load(r'src\img\snake_sprites\horizontal_body.png') ,
+                            'vertical body':    pygame.image.load(r'src\img\snake_sprites\vertical_body.png')   ,
+                            'curve left down':  pygame.image.load(r'src\img\snake_sprites\curve_left_down.png') ,
+                            'curve left up':    pygame.image.load(r'src\img\snake_sprites\curve_left_up.png')   ,
+                            'curve right down': pygame.image.load(r'src\img\snake_sprites\curve_right_down.png'),
+                            'curve right up':   pygame.image.load(r'src\img\snake_sprites\curve_right_up.png')  ,
+                            'tail up':          pygame.image.load(r'src\img\snake_sprites\tail_up.png')         ,
+                            'tail left':        pygame.image.load(r'src\img\snake_sprites\tail_left.png')       ,
+                            'tail right':       pygame.image.load(r'src\img\snake_sprites\tail_right.png')      ,
+                            'tail down':        pygame.image.load(r'src\img\snake_sprites\tail_down.png')       }
+
+        
+        self.l = [self.sprites['head up']]
+        for i in range(size - 2):
+            self.l.append(self.sprites['vertical body'])             # Define o corpo da cobra com base no tamanho dado como parâmetro
+        else:
+            self.l.append(self.sprites['tail up'])
+        for i in range(size):
+            self.body.append([[head_pos[0], head_pos[1] +  20*i], self.l[i], UP])   # body[i] == [[x, y], sprite, dir]
+
+
+    def movement(self, speed, direction, paused, alive):
+        
+        if direction == UP:
+            self.body[0][0][1] -= speed
+            self.body[0][1] = self.sprites['head up']
+        elif direction == DOWN:
+            self.body[0][0][1] += speed
+            self.body[0][1] = self.sprites['head down']
+        elif direction == LEFT:
+            self.body[0][0][0] -= speed
+            self.body[0][1] = self.sprites['head left']
+        elif direction == RIGHT:
+            self.body[0][0][0] += speed
+            self.body[0][1] = self.sprites['head right']
+        
+        for c in range(len(self.body) - 1, 0, -1): 
+            if not paused and alive:
+                (self.body[c][0][0], self.body[c][0][1]) = (self.body[c-1][0][0], self.body[c-1][0][1])
+                self.body[c][2] = self.body[c-1][2]
+
+                if self.game_version > 2:
+                    self.body[c][1] = self.body[c-1][1]
+        
+        if self.game_version > 2:
+            tail_dir = self.body[-1][2]
+            if tail_dir == UP:
+                self.body[-1][1] = self.sprites['tail up']
+            elif tail_dir == LEFT:
+                self.body[-1][1] = self.sprites['tail left']
+            elif tail_dir == DOWN:
+                self.body[-1][1] = self.sprites['tail down']
+            elif tail_dir == RIGHT:
+                self.body[-1][1] = self.sprites['tail right']
+
+
+    def directions(self, direction, event_key, pressed):
+        if not pressed:
+            if event_key == K_UP and direction != DOWN and direction != UP: #Direção da cobra
+                if direction == LEFT:
+                    self.body[1][1] = self.sprites['curve right up']
+                elif direction == RIGHT:
+                    self.body[1][1] = self.sprites['curve left up']
+                direction = UP
+                self.body[1][2] = 4
+
+            elif event_key == K_DOWN and direction != UP and direction != DOWN:
+                if direction == LEFT:
+                    self.body[1][1] = self.sprites['curve right down']
+                elif direction == RIGHT:
+                    self.body[1][1] = self.sprites['curve left down']
+                direction = DOWN
+                self.body[1][2] = 4
+
+            elif event_key == K_LEFT  and direction != RIGHT and direction != LEFT:
+                if direction == UP:
+                    self.body[1][1] = self.sprites['curve left down']
+                elif direction == DOWN:
+                    self.body[1][1] = self.sprites['curve left up']
+                direction = LEFT    
+                self.body[1][2] = 4      
+
+            elif event_key == K_RIGHT and direction != LEFT and direction != RIGHT:
+                if direction == UP:
+                    self.body[1][1] = self.sprites['curve right down']
+                elif direction == DOWN:
+                    self.body[1][1] = self.sprites['curve right up']
+
+                direction = RIGHT
+                self.body[1][2] = 4
+            
+            self.body[0][2] = direction
+            
+        return direction, pressed
+
+    def draw(self, screen):
+        if self.game_version <= 2:
+            for c in range(len(self.body)):
+                pygame.draw.rect(screen, white, (self.body[c][0][0], self.body[c][0][1], 20, 20))
+
+        else:
+
+            for c in range(len(self.body)-1):
+                if c > 1:
+                    if self.body[c][2] == LEFT or self.body[c][2] == RIGHT:
+                        self.body[c][1] = self.sprites['horizontal body']
+                    elif self.body[c][2] == UP or self.body[c][2] == DOWN:
+                        self.body[c][1] = self.sprites['vertical body']
+
+
+            tail_dir = self.body[-1][2]
+            if tail_dir == UP:
+                self.body[-1][1] = self.sprites['tail up']
+            elif tail_dir == LEFT:
+                self.body[-1][1] = self.sprites['tail left']
+            elif tail_dir == DOWN:
+                self.body[-1][1] = self.sprites['tail down']
+            elif tail_dir == RIGHT:
+                self.body[-1][1] = self.sprites['tail right']
+            
+            for c in self.body:
+                screen.blit(c[1].convert_alpha(), c[0])
+    
+    def increase(self):
+        self.body.append([[self.body[-1][0][0], self.body[-1][0][1] + 20], self.sprites['head up'], self.body[-1][2]])
+
+
 class Fruit:
 
     def __init__(self, color, points, sprite = None):
@@ -31,7 +182,8 @@ class Fruit:
     def draw(self, screen):
         if not self.sprite: pygame.draw.rect(screen, self.color, self.fruit)
         else:
-            screen.blit(self.sprite, [self.fruit.x, self.fruit.y])
+            width, height = self.sprite.get_width(), self.sprite.get_height()
+            screen.blit(self.sprite, [self.fruit.x - (width - 20)/2, self.fruit.y - (height - 20)/2])
 
     def eat(self):
         self.counter += 1
@@ -52,12 +204,6 @@ def snake_game(screen, game_version):
     def collision(c1, c2): #Testa colisões
         return (c1[0] == c2[0] and c1[1] == c2[1])
 
-    #Cores
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    red = (250, 0, 0)
-    blue = (0, 0, 250)
-    purple = (160, 0, 200)
 
     #Texto
     font = pygame.font.SysFont(pygame.font.get_default_font(), 45)
@@ -72,13 +218,12 @@ def snake_game(screen, game_version):
     pts = 0
 
     #Player
-    player = pygame.Surface((20, 20))
-    player.fill(white)
-    player_pos = [[400, 400], [400, 420], [400, 440]]
-    dir = 'stopped' #Direção do player
-    last_dir = 'none'
-    pressed = False
+    player = Snake(4, [400, 400], game_version)
+
+    dir = UP #Direção do player
     alive = True
+    SPEED = 20
+    speed = SPEED
 
     #Comida da cobra
     if game_version > 2:
@@ -94,80 +239,56 @@ def snake_game(screen, game_version):
     fruit = 1
     fruit_pos = pos_grid()
 
+    paused = False
+    first = False
     while True:
-        for event in pygame.event.get(): #Testa os eventos
-            if event.type == QUIT:
-                pygame.quit()
-            
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    return pts
-
-                if alive == True:
-                    if event.key == K_UP: #Direção da cobra
-                        if dir == 'down' or last_dir == 'down' or dir == 'up': #Impede que a cobra se atravesse
-                            pass
-                        elif pressed == True: #Resolve o BUG (Olhar última linha)
-                            pass
-                        else:
-                            dir = 'up'
-                            last_dir = 'stopped'
-                            pressed = True
-                    if event.key == K_DOWN:
-                        if dir == 'up' or last_dir == 'up' or dir == 'down':
-                            pass
-                        elif pressed == True or starting == True:
-                            pass
-                        else:
-                            dir = 'down'
-                            last_dir = 'stopped'
-                            pressed = True
-                    if event.key == K_LEFT:
-                        if dir == 'right' or last_dir == 'right' or dir == 'left':
-                            pass
-                        elif pressed == True:
-                            pass
-                        else:
-                            dir = 'left'   
-                            last_dir = 'stopped'
-                            pressed = True
-                    if event.key == K_RIGHT:
-                        if dir == 'left' or last_dir == 'left' or dir == 'right':
-                            pass
-                        elif pressed == True:
-                            pass
-                        else:
-                            dir = 'right'
-                            last_dir = 'stopped'
-                            pressed = True
-                    if event.key == K_SPACE: #Pausa e despausa
-                        if not dir == 'stopped':
-                            last_dir = dir
-                            dir = 'stopped'
-                        elif dir == 'stopped' and last_dir == 'none':
-                            pass
-                        else:
-                            dir = last_dir
-                            last_dir = 'stopped'
-                    if pressed == True and starting == True:
-                        starting = False
-                else:
-                    pass
-
+        
         #Limpando a tela (IMPORTANTE)
         screen.fill(black)
         if game_version > 1: screen.blit(bg, [0, 0])
 
+        pressed = False
+        if first:
+            player.draw(screen)
+        first = True
+        for event in pygame.event.get(): #Testa os eventos
+            if event.type == QUIT:
+                pygame.quit()
+            
+            if event.type == KEYDOWN:   # Sai do minigame
+                if event.key == K_ESCAPE:
+                    return pts
+                if alive == True:
+                    dir, pressed = player.directions(dir, event.key, pressed)
+
+                    if event.key == K_SPACE: #Pausa e despausa
+                        if alive:
+                            if not paused:
+                                paused = True
+                                speed = 0
+                            else:
+                                paused = False
+                                speed = SPEED
+
+                    if starting == True:
+                        starting = False
+                
+
+        #Colisão Player-Player
+        for c in range(len(player.body) - 1, 1 , -1):
+            if collision(player.body[0][0], player.body[c][0]):
+                alive = False
+
         #Colisão Player-Fruta
-        if collision(player_pos[0], fruit_pos): 
+        if collision(player.body[0][0], fruit_pos): 
             last_fruit = fruit
             fruit_pos = pos_grid()
 
             if game_version > 1: 
                 fruit = random.randint(1, 3)
                 eating_sound.play()            
-
-            player_pos.append([0, 0])
+             
+            player.increase()
 
             if last_fruit == 1:
                 pts += apple.eat()
@@ -176,48 +297,30 @@ def snake_game(screen, game_version):
             else: 
                 pts += blueberry.eat()
 
-        #Colisão Player-Player
-        for c in range(len(player_pos) - 2, 0 , -1):
-            if collision(player_pos[0], player_pos[c]):
-                alive = False
         
         #Verifica se o player está saindo da tela
-        if player_pos[0][0] == 0 and dir == 'left': #Dividi em várias linhas para não ficar feio
+        if player.body[0][0][0] == 0 and dir == LEFT: #Dividi em várias linhas para não ficar feio
             alive = False
-        if player_pos[0][0] == 780 and dir == 'right':
+        if player.body[0][0][0] == 780 and dir == RIGHT:
             alive = False
-        if player_pos[0][1] == 0 and dir == 'up':
+        if player.body[0][0][1] == 0 and dir == UP:
             alive = False
-        if player_pos[0][1] == 580 and dir == 'down':
+        if player.body[0][0][1] == 580 and dir == DOWN:
             alive = False
 
         #Verifica se o player está vivo
         if alive == False:
-            dir = 'stopped'
+            paused = True
+            speed = 0
             screen.blit(lose_text, [300, 0])
             screen.blit(quit_text, [250, 30])
 
-        #Atualizando as posições do corpo da cobra
-        for c in range(len(player_pos) - 1, 0, -1): 
-            if dir == 'stopped':
-                pass
-            else:
-                (player_pos[c][0], player_pos[c][1]) = (player_pos[c-1][0], player_pos[c-1][1])
-        
-        #Atualiza a posição da cabeça da cobra com base na direção
-        if dir == 'up':
-            player_pos[0][1] -= 20
-        if dir == 'down':
-            player_pos[0][1] += 20
-        if dir == 'left':
-            player_pos[0][0] -= 20
-        if dir == 'right':
-            player_pos[0][0] += 20
-        if dir == 'stopped':
-            player_pos = player_pos
-            if starting == False and alive == True:
+        player.movement(speed, dir, paused, alive)
+
+        if paused:
+            if not starting and alive:
                 screen.blit(pause_text, [335, 280])
-            if alive == True:
+            if alive:
                 screen.blit(tutorial_text, [560, 10])
                 screen.blit(tutorial_text_2, [560, 35])
                 screen.blit(tutorial_text_3, [560, 60])
@@ -235,8 +338,6 @@ def snake_game(screen, game_version):
             blueberry.change_pos(fruit_pos) # Blueberry 
             blueberry.draw(screen)
         
-        for pos in player_pos: #Gerar a cobra
-            screen.blit(player, pos)
 
         if game_version > 2:
             apples = font.render(f"x{apple.counter}", 1, white)
@@ -254,10 +355,8 @@ def snake_game(screen, game_version):
 
         text = font.render(f'POINTS: {pts}', 1, white)
         screen.blit(text, [0, 0])
-        
-        pressed = False
 
         pygame.display.update()
-        clock.tick(11)
+        clock.tick(13)
 
     return pts

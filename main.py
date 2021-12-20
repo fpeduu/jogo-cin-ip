@@ -41,8 +41,8 @@ pygame.init()
 pygame.display.set_caption('CalouCIn')
 screen = pygame.display.set_mode((width, height))
 
-whoosh = mixer.Sound(r"src\audio\whoosh.ogg")
-whoosh.set_volume(0.2)
+#whoosh = mixer.Sound(r"src\audio\#whoosh.ogg")
+#whoosh.set_volume(0.2)
 
 font_normal = pygame.font.SysFont(None, 30)
 font_big = pygame.font.SysFont(None, 50)
@@ -61,7 +61,7 @@ def verify_click(button, mouse_pos, click, current_screen, new_screen):
         button.top_color = DARK_RED
 
         if click:
-            whoosh.play()
+            #whoosh.play()
             
             current_screen = new_screen
 
@@ -201,7 +201,7 @@ def main():
                         pygame.quit()                   
 
                     else:
-                        whoosh.play()
+                        #whoosh.play()
                         current_screen = "menu"
 
         pygame.display.update()

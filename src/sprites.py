@@ -6,7 +6,7 @@ class Jogador(pygame.sprite.Sprite):
         self.groups = jogo.todos_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.jogo = jogo
-        self.imagem = pygame.image.load('dog.jpg')
+        self.imagem = pygame.image.load('src/dog.jpg')
         self.imagem = pygame.transform.scale(self.imagem, (TAM_TILE,TAM_TILE))
         self.rect = pygame.Rect(x * TAM_TILE, y * TAM_TILE, TAM_TILE, TAM_TILE)
         self.vx, self.vy = 0, 0

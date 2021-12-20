@@ -20,7 +20,7 @@ class Jogo_principal:
         
     def load_mapa(self): # inicializar o mapa
         pasta = path.dirname(__file__) # especificar que a pasta a qual o arquivo 'mapa.txt' esta e a mesma do 'main.py'
-        mapa_texto = path.join(pasta, 'aa.txt') #
+        mapa_texto = path.join(pasta, 'map_txt.txt') #
         self.map = Mapa(mapa_texto)
 
     def setup(self): # setup do jogo
@@ -33,23 +33,23 @@ class Jogo_principal:
         for linha, tiles in enumerate(self.map.data):
             for coluna, tile in enumerate(tiles):
                 if tile == 'P':
-                    Parede(self,coluna,linha,'imgs/parede_alt.png')
+                    Parede(self,coluna,linha,'src/img/parede_alt.png')
                 if tile == 'p':
-                    Parede(self,coluna,linha,'imgs/parede_cont.png')
+                    Parede(self,coluna,linha,'src/img/parede_cont.png')
                 if tile == 'K':
-                    Parede(self,coluna,linha,'imgs/parede_1.png')
+                    Parede(self,coluna,linha,'src/img/parede_1.png')
                 if tile == 'L':
-                    Parede(self,coluna,linha,'imgs/parede_2.png')
+                    Parede(self,coluna,linha,'src/img/parede_2.png')
                 if tile == 'M':
-                    Parede(self,coluna,linha,'imgs/mesa_5.png')
+                    Parede(self,coluna,linha,'src/img/mesa_5.png')
                 if tile == 'Q':
-                    Parede(self,coluna,linha,'imgs/mesa_2.png')
+                    Parede(self,coluna,linha,'src/img/mesa_2.png')
                 if tile == 'Y':
-                    Parede(self,coluna,linha,'imgs/mesa_3.png')
+                    Parede(self,coluna,linha,'src/img/mesa_3.png')
                 if tile == 'T':
-                    Parede(self,coluna,linha,'imgs/mesa_4.png')
+                    Parede(self,coluna,linha,'src/img/mesa_4.png')
                 if tile == 'V':
-                    Parede(self,coluna,linha,'imgs/mesa_1.png')
+                    Parede(self,coluna,linha,'src/img/mesa_1.png')
 
                 if tile == 'E':
                     self.jogador = Jogador(self, coluna, linha)
@@ -92,9 +92,3 @@ class Jogo_principal:
  
 
 jogo = Jogo_principal()
-
-while True: 
-  jogo.setup()
-  jogo.rodando()
-
-

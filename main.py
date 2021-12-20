@@ -7,6 +7,7 @@ from pygame.locals import *
 
 sys.path.append("src/")
 from snake import *
+import main_game
 
 class Button():
     def __init__(self, text, width, height, pos):
@@ -102,8 +103,8 @@ def menu():
     return play_button, minigames_button
 
 def game():
-    screen.fill(WHITE)
-    write("telinha totosa do game", font_big, RED, screen, (width/2, 90))
+    main_game.jogo.setup()
+    main_game.jogo.rodando()
 
 def minigames(high_score1, high_score2, high_score3):
     screen.fill(WHITE)
